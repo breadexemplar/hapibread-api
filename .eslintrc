@@ -80,7 +80,6 @@
     ],
     "prefer-const": 2,
     "prefer-template": 2,
-    "prefer-rest-params": 1,
     "prefer-arrow-callback": 1,
     "space-unary-ops": 2,
     "space-infix-ops": 2,
