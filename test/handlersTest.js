@@ -18,14 +18,14 @@ const internals = {
     bookModel: { err: null, res: null }
 };
 
-internals.testAuthorModel = function (...args) {
+internals.testAuthorModel = function () {
 
-    return args[args.length - 1](internals.authorModel.err, internals.authorModel.res);
+    return arguments[arguments.length - 1](internals.authorModel.err, internals.authorModel.res);
 };
 
-internals.testBookModel = function (...args) {
+internals.testBookModel = function () {
 
-    return args[args.length - 1](internals.bookModel.err, internals.bookModel.res);
+    return arguments[arguments.length - 1](internals.bookModel.err, internals.bookModel.res);
 };
 
 internals.authorsPath = '/authors';
