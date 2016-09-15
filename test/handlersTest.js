@@ -97,6 +97,18 @@ internals.errors = {
         statusCode: 500,
         error: 'Internal Server Error',
         message: 'An internal server error occurred'
+    },
+    badRequestAuthor: {
+        error: 'Bad Request',
+        message: 'Author is invalid',
+        validation: { source: 'payload', keys: ['author'] },
+        statusCode: 400
+    },
+    notFoundId: {
+        error: 'Not Found',
+        message: 'Id does not exist',
+        validation: { source: 'params', keys: ['id'] },
+        statusCode: 404
     }
 };
 
@@ -109,19 +121,31 @@ internals.authorHandlerTests = [
     },
     {
         request: { url: internals.authorsPath, method: 'get' },
-        authorModel: { err: true, res: [] },
+        authorModel: { err: true, res: null },
         result: internals.errors.badImplementation,
         statusCode: 500
     },
     {
         request: { url: internals.authorsIdPath, method: 'get' },
-        authorModel: { err: null, res: {} },
-        result: { payload: {}, statusCode: 200 },
+        authorModel: { err: null, res: [{ id: 1 }] },
+        result: { payload: { id: 1 }, statusCode: 200 },
         statusCode: 200
     },
     {
         request: { url: internals.authorsIdPath, method: 'get' },
-        authorModel: { err: true, res: {} },
+        authorModel: { err: null, res: [] },
+        result: internals.errors.notFoundId,
+        statusCode: 404
+    },
+    {
+        request: { url: internals.authorsIdPath, method: 'get' },
+        authorModel: { err: null, res: null },
+        result: internals.errors.notFoundId,
+        statusCode: 404
+    },
+    {
+        request: { url: internals.authorsIdPath, method: 'get' },
+        authorModel: { err: true, res: null },
         result: internals.errors.badImplementation,
         statusCode: 500
     },
@@ -140,7 +164,7 @@ internals.authorHandlerTests = [
     {
         request: { url: internals.authorsIdPath, method: 'patch', payload: {} },
         authorModel: { err: null, res: 0 },
-        result: { message: 'Id not found', keys: ['id'], statusCode: 404 },
+        result: internals.errors.notFoundId,
         statusCode: 404
     },
     {
@@ -170,7 +194,7 @@ internals.authorHandlerTests = [
     {
         request: { url: internals.authorsIdPath, method: 'delete' },
         authorModel: { err: null, res: 0 },
-        result: { message: 'Id not found', keys: ['id'], statusCode: 404 },
+        result: internals.errors.notFoundId,
         statusCode: 404
     },
     {
@@ -196,15 +220,27 @@ internals.bookHandlerTests = [
     },
     {
         request: { url: internals.booksPath, method: 'get' },
-        bookModel: { err: true, res: [] },
+        bookModel: { err: true, res: null },
         result: internals.errors.badImplementation,
         statusCode: 500
     },
     {
         request: { url: internals.booksIdPath, method: 'get' },
-        bookModel: { err: null, res: {} },
-        result: { payload: {}, statusCode: 200 },
+        bookModel: { err: null, res: [{ id: 1 }] },
+        result: { payload: { id: 1 }, statusCode: 200 },
         statusCode: 200
+    },
+    {
+        request: { url: internals.booksIdPath, method: 'get' },
+        bookModel: { err: null, res: [] },
+        result: internals.errors.notFoundId,
+        statusCode: 404
+    },
+    {
+        request: { url: internals.booksIdPath, method: 'get' },
+        bookModel: { err: null, res: null },
+        result: internals.errors.notFoundId,
+        statusCode: 404
     },
     {
         request: { url: internals.booksIdPath, method: 'get' },
@@ -223,14 +259,14 @@ internals.bookHandlerTests = [
         request: { url: internals.booksIdPath, method: 'patch', payload: {} },
         authorModel: { err: null, res: null },
         bookModel: { err: null, res: 1 },
-        result: { message: 'Author is invalid', keys: ['author'], statusCode: 400 },
+        result: internals.errors.badRequestAuthor,
         statusCode: 400
     },
     {
         request: { url: internals.booksIdPath, method: 'patch', payload: {} },
         authorModel: { err: null, res: {} },
         bookModel: { err: null, res: 1 },
-        result: { message: 'Author is invalid', keys: ['author'], statusCode: 400 },
+        result: internals.errors.badRequestAuthor,
         statusCode: 400
     },
     {
@@ -250,7 +286,7 @@ internals.bookHandlerTests = [
         request: { url: internals.booksIdPath, method: 'patch', payload: {} },
         authorModel: { err: null, res: { penName: true } },
         bookModel: { err: null, res: 0 },
-        result: { message: 'Id not found', keys: ['id'], statusCode: 404 },
+        result: internals.errors.notFoundId,
         statusCode: 404
     },
     {
@@ -264,14 +300,14 @@ internals.bookHandlerTests = [
         request: { url: internals.booksPath, method: 'post', payload: {} },
         authorModel: { err: null, res: null },
         bookModel: { err: null, res: 1 },
-        result: { message: 'Author is invalid', keys: ['author'], statusCode: 400 },
+        result: internals.errors.badRequestAuthor,
         statusCode: 400
     },
     {
         request: { url: internals.booksPath, method: 'post', payload: {} },
         authorModel: { err: null, res: {} },
         bookModel: { err: null, res: 1 },
-        result: { message: 'Author is invalid', keys: ['author'], statusCode: 400 },
+        result: internals.errors.badRequestAuthor,
         statusCode: 400
     },
     {
@@ -302,7 +338,7 @@ internals.bookHandlerTests = [
     {
         request: { url: internals.booksIdPath, method: 'delete' },
         bookModel: { err: null, res: 0 },
-        result: { message: 'Id not found', keys: ['id'], statusCode: 404 },
+        result: internals.errors.notFoundId,
         statusCode: 404
     }
 ];
