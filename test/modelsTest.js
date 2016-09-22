@@ -1,4 +1,5 @@
 'use strict';
+/* eslint max-nested-callbacks: 0 */
 
 const Proxyquire = require('proxyquire');
 const Async = require('async');
@@ -44,49 +45,6 @@ internals.testRead = internals.testDelete = function (method, expected, done) {
                 expect(err).to.exist();
 
                 return done();
-            });
-        });
-    });
-};
-
-internals.testBrowse = function (method, sort, done) {
-
-    method('a', sort, 'asc', 1, 1, (err, result) => {
-
-        expect(err).to.not.exist();
-        expect(result).to.equal([{ id: 1 }]);
-
-        internals.query = internals.errorQuery;
-
-        method('', sort, 'asc', 1, 1, (err) => {
-
-            expect(err).to.exist();
-
-            method('', '', '', '', '', (err) => {
-
-                expect(err).to.exist();
-
-                method('', '', '', '', 1, (err) => {
-
-                    expect(err).to.exist();
-
-                    method('', '', '', 1, '', (err) => {
-
-                        expect(err).to.exist();
-
-                        method('', '', '', 1, 1, (err) => {
-
-                            expect(err).to.exist();
-
-                            method('', '', 'asc', 1, 1, (err) => {
-
-                                expect(err).to.exist();
-
-                                return done();
-                            });
-                        });
-                    });
-                });
             });
         });
     });
@@ -224,7 +182,47 @@ describe('lib/models.authors', () => {
 
     it('browse authors', (done) => {
 
-        return internals.testBrowse(internals.server.methods.author.browse, 'penName', done);
+        const method = internals.server.methods.author.browse;
+
+        method('a', 'penName', 'asc', 1, 1, (err, result) => {
+
+            expect(err).to.not.exist();
+            expect(result).to.equal([{ id: 1 }]);
+
+            internals.query = internals.errorQuery;
+
+            method('', 'penName', 'asc', 1, 1, (err) => {
+
+                expect(err).to.exist();
+
+                method('', '', '', '', '', (err) => {
+
+                    expect(err).to.exist();
+
+                    method('', '', '', '', 1, (err) => {
+
+                        expect(err).to.exist();
+
+                        method('', '', '', 1, '', (err) => {
+
+                            expect(err).to.exist();
+
+                            method('', '', '', 1, 1, (err) => {
+
+                                expect(err).to.exist();
+
+                                method('', '', 'asc', 1, 1, (err) => {
+
+                                    expect(err).to.exist();
+
+                                    return done();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 
     it('read authors', (done) => {
@@ -263,14 +261,58 @@ describe('lib/models.books', () => {
 
     it('browse books', (done) => {
 
-        const browse = internals.server.methods.book.browse;
+        const method = internals.server.methods.book.browse;
 
-        browse({ author: 1 }, 'title', 'asc', 1, 1, (err, result) => {
+        method('', 'title', 'asc', 1, 1, 1, (err, result) => {
 
             expect(err).to.not.exist();
             expect(result).to.equal([{ id: 1 }]);
 
-            return internals.testBrowse(browse, 'title', done);
+            method('a', 'title', 'asc', 1, 1, 1, (err, result) => {
+
+                expect(err).to.not.exist();
+                expect(result).to.equal([{ id: 1 }]);
+
+                method('a', 'title', 'asc', 1, 1, null, (err, result) => {
+
+                    expect(err).to.not.exist();
+                    expect(result).to.equal([{ id: 1 }]);
+
+                    internals.query = internals.errorQuery;
+
+                    method('', 'title', 'asc', 1, 1, null, (err) => {
+
+                        expect(err).to.exist();
+
+                        method('', '', '', '', '', null, (err) => {
+
+                            expect(err).to.exist();
+
+                            method('', '', '', '', 1, null, (err) => {
+
+                                expect(err).to.exist();
+
+                                method('', '', '', 1, '', null, (err) => {
+
+                                    expect(err).to.exist();
+
+                                    method('', '', '', 1, 1, null, (err) => {
+
+                                        expect(err).to.exist();
+
+                                        method('', '', 'asc', 1, 1, null, (err) => {
+
+                                            expect(err).to.exist();
+
+                                            return done();
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         });
     });
 
