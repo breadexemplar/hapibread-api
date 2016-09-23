@@ -205,7 +205,7 @@ internals.authorHandlerTests = [
     },
     {
         request: { url: `${internals.authorsIdPath}/books`, method: 'get' },
-        bookModel: { err: true, res: [] },
+        bookModel: { err: true, res: null },
         result: internals.errors.badImplementation,
         statusCode: 500
     }
