@@ -184,38 +184,58 @@ describe('lib/models.authors', () => {
 
         const method = internals.server.methods.author.browse;
 
+        internals.query = (query, next) => {
+
+            return next(null, { rowCount: 1, rows: [{ count: 1 }] });
+        };
+
         method('a', 'penName', 'asc', 1, 1, (err, result) => {
 
             expect(err).to.not.exist();
-            expect(result).to.equal([{ id: 1 }]);
+            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-            internals.query = internals.errorQuery;
+            internals.query = (query, next) => {
+
+                if (query && query.text === 'SELECT COUNT(id) FROM authors ') {
+
+                    return next(null, { rowCount: 1, rows: [{ count: 2 }] });
+                }
+
+                return next(new Error('Query Error'));
+            };
 
             method('', 'penName', 'asc', 1, 1, (err) => {
 
                 expect(err).to.exist();
 
-                method('', '', '', '', '', (err) => {
+                internals.query = internals.errorQuery;
+
+                method('', 'penName', 'asc', 1, 1, (err) => {
 
                     expect(err).to.exist();
 
-                    method('', '', '', '', 1, (err) => {
+                    method('', '', '', '', '', (err) => {
 
                         expect(err).to.exist();
 
-                        method('', '', '', 1, '', (err) => {
+                        method('', '', '', '', 1, (err) => {
 
                             expect(err).to.exist();
 
-                            method('', '', '', 1, 1, (err) => {
+                            method('', '', '', 1, '', (err) => {
 
                                 expect(err).to.exist();
 
-                                method('', '', 'asc', 1, 1, (err) => {
+                                method('', '', '', 1, 1, (err) => {
 
                                     expect(err).to.exist();
 
-                                    return done();
+                                    method('', '', 'asc', 1, 1, (err) => {
+
+                                        expect(err).to.exist();
+
+                                        return done();
+                                    });
                                 });
                             });
                         });
@@ -263,48 +283,68 @@ describe('lib/models.books', () => {
 
         const method = internals.server.methods.book.browse;
 
+        internals.query = (query, next) => {
+
+            return next(null, { rowCount: 1, rows: [{ count: 1 }] });
+        };
+
         method('', 'title', 'asc', 1, 1, 1, (err, result) => {
 
             expect(err).to.not.exist();
-            expect(result).to.equal([{ id: 1 }]);
+            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
             method('a', 'title', 'asc', 1, 1, 1, (err, result) => {
 
                 expect(err).to.not.exist();
-                expect(result).to.equal([{ id: 1 }]);
+                expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
                 method('a', 'title', 'asc', 1, 1, null, (err, result) => {
 
                     expect(err).to.not.exist();
-                    expect(result).to.equal([{ id: 1 }]);
+                    expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                    internals.query = internals.errorQuery;
+                    internals.query = (query, next) => {
+
+                        if (query && query.text.includes('SELECT COUNT(books.id)')) {
+
+                            return next(null, { rowCount: 1, rows: [{ count: 2 }] });
+                        }
+
+                        return next(new Error('Query Error'));
+                    };
 
                     method('', 'title', 'asc', 1, 1, null, (err) => {
 
                         expect(err).to.exist();
 
-                        method('', '', '', '', '', null, (err) => {
+                        internals.query = internals.errorQuery;
+
+                        method('', 'title', 'asc', 1, 1, null, (err) => {
 
                             expect(err).to.exist();
 
-                            method('', '', '', '', 1, null, (err) => {
+                            method('', '', '', '', '', null, (err) => {
 
                                 expect(err).to.exist();
 
-                                method('', '', '', 1, '', null, (err) => {
+                                method('', '', '', '', 1, null, (err) => {
 
                                     expect(err).to.exist();
 
-                                    method('', '', '', 1, 1, null, (err) => {
+                                    method('', '', '', 1, '', null, (err) => {
 
                                         expect(err).to.exist();
 
-                                        method('', '', 'asc', 1, 1, null, (err) => {
+                                        method('', '', '', 1, 1, null, (err) => {
 
                                             expect(err).to.exist();
 
-                                            return done();
+                                            method('', '', 'asc', 1, 1, null, (err) => {
+
+                                                expect(err).to.exist();
+
+                                                return done();
+                                            });
                                         });
                                     });
                                 });
