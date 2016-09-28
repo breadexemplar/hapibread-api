@@ -186,55 +186,72 @@ describe('lib/models.authors', () => {
 
         internals.query = (query, next) => {
 
-            return next(null, { rowCount: 1, rows: [{ count: 1 }] });
+            return next(null, { rowCount: 1, rows: [{ count: 0 }] });
         };
 
         method('a', 'penName', 'asc', 1, 1, (err, result) => {
 
             expect(err).to.not.exist();
-            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
+            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 0 }] });
 
             internals.query = (query, next) => {
 
-                if (query && query.text === 'SELECT COUNT(id) FROM authors ') {
-
-                    return next(null, { rowCount: 1, rows: [{ count: 2 }] });
-                }
-
-                return next(new Error('Query Error'));
+                return next(null, { rowCount: 1, rows: [{ count: 1 }] });
             };
 
-            method('', 'penName', 'asc', 1, 1, (err) => {
+            method('a', 'penName', 'asc', 1, 1, (err, result) => {
 
-                expect(err).to.exist();
+                expect(err).to.not.exist();
+                expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                internals.query = internals.errorQuery;
+                method('a', 'penName', 'asc', 10, 1, (err, result) => {
 
-                method('', 'penName', 'asc', 1, 1, (err) => {
+                    expect(err).to.not.exist();
+                    expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                    expect(err).to.exist();
+                    internals.query = (query, next) => {
 
-                    method('', '', '', '', '', (err) => {
+                        if (query && query.text === 'SELECT COUNT(id) FROM authors ') {
+
+                            return next(null, { rowCount: 1, rows: [{ count: 2 }] });
+                        }
+
+                        return next(new Error('Query Error'));
+                    };
+
+                    method('', 'penName', 'asc', 1, 1, (err) => {
 
                         expect(err).to.exist();
 
-                        method('', '', '', '', 1, (err) => {
+                        internals.query = internals.errorQuery;
+
+                        method('', 'penName', 'asc', 1, 1, (err) => {
 
                             expect(err).to.exist();
 
-                            method('', '', '', 1, '', (err) => {
+                            method('', '', '', '', '', (err) => {
 
                                 expect(err).to.exist();
 
-                                method('', '', '', 1, 1, (err) => {
+                                method('', '', '', '', 1, (err) => {
 
                                     expect(err).to.exist();
 
-                                    method('', '', 'asc', 1, 1, (err) => {
+                                    method('', '', '', 1, '', (err) => {
 
                                         expect(err).to.exist();
 
-                                        return done();
+                                        method('', '', '', 1, 1, (err) => {
+
+                                            expect(err).to.exist();
+
+                                            method('', '', 'asc', 1, 1, (err) => {
+
+                                                expect(err).to.exist();
+
+                                                return done();
+                                            });
+                                        });
                                     });
                                 });
                             });
@@ -285,65 +302,82 @@ describe('lib/models.books', () => {
 
         internals.query = (query, next) => {
 
-            return next(null, { rowCount: 1, rows: [{ count: 1 }] });
+            return next(null, { rowCount: 1, rows: [{ count: 0 }] });
         };
 
         method('', 'title', 'asc', 1, 1, 1, (err, result) => {
 
             expect(err).to.not.exist();
-            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
+            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 0 }] });
 
-            method('a', 'title', 'asc', 1, 1, 1, (err, result) => {
+            internals.query = (query, next) => {
+
+                return next(null, { rowCount: 1, rows: [{ count: 1 }] });
+            };
+
+            method('', 'title', 'asc', 1, 1, 1, (err, result) => {
 
                 expect(err).to.not.exist();
                 expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                method('a', 'title', 'asc', 1, 1, null, (err, result) => {
+                method('', 'title', 'asc', 10, 1, 1, (err, result) => {
 
                     expect(err).to.not.exist();
                     expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                    internals.query = (query, next) => {
+                    method('a', 'title', 'asc', 1, 1, 1, (err, result) => {
 
-                        if (query && query.text.includes('SELECT COUNT(books.id)')) {
+                        expect(err).to.not.exist();
+                        expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                            return next(null, { rowCount: 1, rows: [{ count: 2 }] });
-                        }
+                        method('a', 'title', 'asc', 1, 1, null, (err, result) => {
 
-                        return next(new Error('Query Error'));
-                    };
+                            expect(err).to.not.exist();
+                            expect(result).to.equal({ pages: 1, page: 1, items: [{ count: 1 }] });
 
-                    method('', 'title', 'asc', 1, 1, null, (err) => {
+                            internals.query = (query, next) => {
 
-                        expect(err).to.exist();
+                                if (query && query.text.includes('SELECT COUNT(books.id)')) {
 
-                        internals.query = internals.errorQuery;
+                                    return next(null, { rowCount: 1, rows: [{ count: 2 }] });
+                                }
 
-                        method('', 'title', 'asc', 1, 1, null, (err) => {
+                                return next(new Error('Query Error'));
+                            };
 
-                            expect(err).to.exist();
-
-                            method('', '', '', '', '', null, (err) => {
+                            method('', 'title', 'asc', 1, 1, null, (err) => {
 
                                 expect(err).to.exist();
 
-                                method('', '', '', '', 1, null, (err) => {
+                                internals.query = internals.errorQuery;
+
+                                method('', 'title', 'asc', 1, 1, null, (err) => {
 
                                     expect(err).to.exist();
 
-                                    method('', '', '', 1, '', null, (err) => {
+                                    method('', '', '', '', '', null, (err) => {
 
                                         expect(err).to.exist();
 
-                                        method('', '', '', 1, 1, null, (err) => {
+                                        method('', '', '', '', 1, null, (err) => {
 
                                             expect(err).to.exist();
 
-                                            method('', '', 'asc', 1, 1, null, (err) => {
+                                            method('', '', '', 1, '', null, (err) => {
 
                                                 expect(err).to.exist();
 
-                                                return done();
+                                                method('', '', '', 1, 1, null, (err) => {
+
+                                                    expect(err).to.exist();
+
+                                                    method('', '', 'asc', 1, 1, null, (err) => {
+
+                                                        expect(err).to.exist();
+
+                                                        return done();
+                                                    });
+                                                });
                                             });
                                         });
                                     });
